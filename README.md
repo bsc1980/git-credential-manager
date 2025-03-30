@@ -1,146 +1,106 @@
-# Git Credential Manager
+# Debugger for Java
 
-[![Build Status][build-status-badge]][workflow-status]
+[![Gitter](https://badges.gitter.im/Microsoft/vscode-java-debug.svg)](https://gitter.im/Microsoft/vscode-java-debug)
+[![Travis CI](https://travis-ci.org/Microsoft/vscode-java-debug.svg?branch=master)](https://travis-ci.org/Microsoft/vscode-java-debug)
 
----
+## Overview
+A lightweight Java Debugger based on [Java Debug Server](https://github.com/Microsoft/java-debug) which extends the [Language Support for Java by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.java). It allows users to debug Java code using Visual Studio Code (VS Code). Here's a list of features:
 
-[Git Credential Manager][gcm] (GCM) is a secure
-[Git credential helper][git-credential-helper] built on [.NET][dotnet] that runs
-on Windows, macOS, and Linux. It aims to provide a consistent and secure
-authentication experience, including multi-factor auth, to every major source
-control hosting service and platform.
+- Launch/Attach
+- Breakpoints/Conditional Breakpoints/Logpoints
+- Exceptions
+- Pause & Continue
+- Step In/Out/Over
+- Variables
+- Callstacks
+- Threads
+- Debug console
+- Evaluation
+- Hot Code Replace
 
-GCM supports (in alphabetical order) [Azure DevOps][azure-devops], Azure DevOps
-Server (formerly Team Foundation Server), Bitbucket, GitHub, and GitLab.
-Compare to Git's [built-in credential helpers][git-tools-credential-storage]
-(Windows: wincred, macOS: osxkeychain, Linux: gnome-keyring/libsecret), which
-provide single-factor authentication support for username/password only.
-
-GCM replaces both the .NET Framework-based
-[Git Credential Manager for Windows][gcm-for-windows] and the Java-based
-[Git Credential Manager for Mac and Linux][gcm-for-mac-and-linux].
+## Requirements
+- JDK (version 1.8.0 or later)
+- VS Code (version 1.19.0 or later)
+- [Language Support for Java by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.java) (version 0.14.0 or later)
 
 ## Install
 
-See the [installation instructions][install] for the current version of GCM for
-install options for your operating system.
+Open VS Code and press `F1` or `Ctrl + Shift + P` to open command palette, select **Install Extension** and type `vscode-java-debug`.
 
-## Current status
+Or launch VS Code Quick Open (`Ctrl + P`), paste the following command, and press enter.
+```bash
+ext install vscode-java-debug
+```
 
-Git Credential Manager is currently available for Windows, macOS, and Linux\*.
-GCM only works with HTTP(S) remotes; you can still use Git with SSH:
+## Use
 
-- [Azure DevOps SSH][azure-devops-ssh]
-- [GitHub SSH][github-ssh]
-- [Bitbucket SSH][bitbucket-ssh]
+- Launch VS Code
+- Open a Java project (Maven/Gradle/Eclipse)
+- Open a Java file to activate the extensions
+- Add debug configurations and edit launch.json
+    - To launch: specify `mainClass`
+    - To attach: specify `hostName` and `port`
+- Press F5
 
-Feature|Windows|macOS|Linux\*
--|:-:|:-:|:-:
-Installer/uninstaller|&#10003;|&#10003;|&#10003;
-Secure platform credential storage [(see more)][gcm-credstores]|&#10003;|&#10003;|&#10003;
-Multi-factor authentication support for Azure DevOps|&#10003;|&#10003;|&#10003;
-Two-factor authentication support for GitHub|&#10003;|&#10003;|&#10003;
-Two-factor authentication support for Bitbucket|&#10003;|&#10003;|&#10003;
-Two-factor authentication support for GitLab|&#10003;|&#10003;|&#10003;
-Windows Integrated Authentication (NTLM/Kerberos) support|&#10003;|_N/A_|_N/A_
-Basic HTTP authentication support|&#10003;|&#10003;|&#10003;
-Proxy support|&#10003;|&#10003;|&#10003;
-`amd64` support|&#10003;|&#10003;|&#10003;
-`x86` support|&#10003;|_N/A_|&#10007;
-`arm64` support|best effort|&#10003;|&#10003;
-`armhf` support|_N/A_|_N/A_|&#10003;
+Please also check the documentation of [Language Support for Java by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.java) if you have trouble setting up your project.
 
-(\*) GCM guarantees support only for [the Linux distributions that are officially
-supported by dotnet][dotnet-distributions].
+## Options
 
-## Supported Git versions
+### Launch
 
-Git Credential Manager tries to be compatible with the broadest set of Git
-versions (within reason). However there are some know problematic releases of
-Git that are not compatible.
+- `mainClass` (required) - The fully qualified class name (e.g. [java module name/]com.xyz.MainApp) or the java file path of the program entry.
+- `args` - The command line arguments passed to the program. Use `"${command:SpecifyProgramArgs}"` to prompt for program arguments. It accepts a string or an array of string.
+- `sourcePaths` - The extra source directories of the program. The debugger looks for source code from project settings by default. This option allows the debugger to look for source code in extra directories.
+- `modulePaths` - The modulepaths for launching the JVM. If not specified, the debugger will automatically resolve from current project.
+- `classPaths` - The classpaths for launching the JVM. If not specified, the debugger will automatically resolve from current project.
+- `encoding` - The `file.encoding` setting for the JVM. If not specified, 'UTF-8' will be used. Possible values can be found in http://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html.
+- `vmArgs` - The extra options and system properties for the JVM (e.g. -Xms\<size\> -Xmx\<size\> -D\<name\>=\<value\>), it accepts a string or an array of string.
+- `projectName` - The preferred project in which the debugger searches for classes. There could be duplicated class names in different projects. This setting also works when the debugger looks for the specified main class when launching a program. It is required when the workspace has multiple java projects, otherwise the expression evaluation and conditional breakpoint may not work.
+- `cwd` - The working directory of the program. Defaults to `${workspaceFolder}`.
+- `env` - The extra environment variables for the program.
+- `stopOnEntry` - Automatically pause the program after launching.
+- `console` - The specified console to launch the program. Defaults to `internalConsole`.
+  - `internalConsole` - VS Code debug console (input stream not supported).
+  - `integratedTerminal` - VS Code integrated terminal.
+  - `externalTerminal` - External terminal that can be configured in user settings.
+- `stepFilters` - Skip specified classes or methods when stepping.
+  - `classNameFilters` - Skip the specified classes when stepping. Class names should be fully qualified. Wildcard is supported.
+  - `skipSynthetics` - Skip synthetic methods when stepping.
+  - `skipStaticInitializers` - Skip static initializer methods when stepping.
+  - `skipConstructors` - Skip constructor methods when stepping.
 
-- Git 1.x
+### Attach
 
-  The initial major version of Git is not supported or tested with GCM.
+- `hostName` (required) - The host name or IP address of remote debuggee.
+- `port` (required) - The debug port of remote debuggee.
+- `timeout` - Timeout value before reconnecting, in milliseconds (default to 30000ms).
+- `sourcePaths` - The extra source directories of the program. The debugger looks for source code from project settings by default. This option allows the debugger to look for source code in extra directories.
+- `projectName` - The preferred project in which the debugger searches for classes. There could be duplicated class names in different projects. It is required when the workspace has multiple java projects, otherwise the expression evaluation and conditional breakpoint may not work.
+- `stepFilters` - Skip specified classes or methods when stepping.
+  - `classNameFilters` - Skip the specified classes when stepping. Class names should be fully qualified. Wildcard is supported.
+  - `skipSynthetics` - Skip synthetic methods when stepping.
+  - `skipStaticInitializers` - Skip static initializer methods when stepping.
+  - `skipConstructors` - Skip constructor methods when stepping.
 
-- Git 2.26.2
+### User Settings
 
-  This version of Git introduced a breaking change with parsing credential
-  configuration that GCM relies on. This issue was fixed in commit
-  [`12294990`][gcm-commit-12294990] of the Git project, and released in Git
-  2.27.0.
+- `java.debug.logLevel`: minimum level of debugger logs that are sent to VS Code, defaults to `warn`.
+- `java.debug.settings.showHex`: show numbers in hex format in "Variables" viewlet, defaults to `false`.
+- `java.debug.settings.showStaticVariables`: show static variables in "Variables" viewlet, defaults to `true`.
+- `java.debug.settings.showQualifiedNames`: show fully qualified class names in "Variables" viewlet, defaults to `false`.
+- `java.debug.settings.maxStringLength`: the maximum length of string displayed in "Variables" or "Debug Console" viewlet, the string longer than this length will be trimmed, defaults to `0` which means no trim is performed.
+- `java.debug.settings.enableHotCodeReplace`: enable hot code replace for Java code. Make sure the auto build is not disabled for [VSCode Java](https://github.com/redhat-developer/vscode-java). See the [wiki page](https://github.com/Microsoft/vscode-java-debug/wiki/Hot-Code-Replace) for more information about usages and limitations.
+- `java.debug.settings.enableRunDebugCodeLens`: enable the code lens provider for the run and debug buttons over main entry points, defaults to `true`.
+- `java.debug.settings.forceBuildBeforeLaunch`: force building the workspace before launching java program, defaults to `true`.
 
-## How to use
+## Troubleshooting
+Reference the [troubleshooting guide](https://github.com/Microsoft/vscode-java-debug/blob/master/Troubleshooting.md) for common errors.
 
-Once it's installed and configured, Git Credential Manager is called implicitly
-by Git. You don't have to do anything special, and GCM isn't intended to be
-called directly by the user. For example, when pushing (`git push`) to
-[Azure DevOps][azure-devops], [Bitbucket][bitbucket], or [GitHub][github], a
-window will automatically open and walk you through the sign-in process. (This
-process will look slightly different for each Git host, and even in some cases,
-whether you've connected to an on-premises or cloud-hosted Git host.) Later Git
-commands in the same repository will re-use existing credentials or tokens that
-GCM has stored for as long as they're valid.
-
-Read full command line usage [here][gcm-usage].
-
-### Configuring a proxy
-
-See detailed information [here][gcm-http-proxy].
-
-## Additional Resources
-
-See the [documentation index][docs-index] for links to additional resources.
-
-## Experimental Features
-
-- [Windows broker (experimental)][gcm-windows-broker]
-
-## Future features
-
-Curious about what's coming next in the GCM project? Take a look at the [project
-roadmap][roadmap]! You can find more details about the construction of the
-roadmap and how to interpret it [here][roadmap-announcement].
-
-## Contributing
-
-This project welcomes contributions and suggestions.
-See the [contributing guide][gcm-contributing] to get started.
-
-This project follows [GitHub's Open Source Code of Conduct][gcm-coc].
+## Feedback and Questions
+You can find the full list of issues at [Issue Tracker](https://github.com/Microsoft/vscode-java-debug/issues). You can submit a [bug or feature suggestion](https://github.com/Microsoft/vscode-java-debug/issues/new), and participate community driven [![Gitter](https://badges.gitter.im/Microsoft/vscode-java-debug.svg)](https://gitter.im/Microsoft/vscode-java-debug)
 
 ## License
+This extension is licensed under [MIT License](https://github.com/Microsoft/vscode-java-debug/blob/master/LICENSE.txt).
 
-We're [MIT][gcm-license] licensed.
-When using GitHub logos, please be sure to follow the
-[GitHub logo guidelines][github-logos].
-
-[azure-devops]: https://azure.microsoft.com/en-us/products/devops
-[azure-devops-ssh]: https://docs.microsoft.com/en-us/azure/devops/repos/git/use-ssh-keys-to-authenticate?view=azure-devops
-[bitbucket]: https://bitbucket.org
-[bitbucket-ssh]: https://confluence.atlassian.com/bitbucket/ssh-keys-935365775.html
-[build-status-badge]: https://github.com/git-ecosystem/git-credential-manager/actions/workflows/continuous-integration.yml/badge.svg
-[docs-index]: https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/README.md
-[dotnet]: https://dotnet.microsoft.com
-[dotnet-distributions]: https://learn.microsoft.com/en-us/dotnet/core/install/linux
-[git-credential-helper]: https://git-scm.com/docs/gitcredentials
-[gcm]: https://github.com/git-ecosystem/git-credential-manager
-[gcm-coc]: CODE_OF_CONDUCT.md
-[gcm-commit-12294990]: https://github.com/git/git/commit/12294990c90e043862be9eb7eb22c3784b526340
-[gcm-contributing]: CONTRIBUTING.md
-[gcm-credstores]: https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/credstores.md
-[gcm-for-mac-and-linux]: https://github.com/microsoft/Git-Credential-Manager-for-Mac-and-Linux
-[gcm-for-windows]: https://github.com/microsoft/Git-Credential-Manager-for-Windows
-[gcm-http-proxy]: https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/netconfig.md#http-proxy
-[gcm-license]: LICENSE
-[gcm-usage]: https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/usage.md
-[gcm-windows-broker]: https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/windows-broker.md
-[git-tools-credential-storage]: https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage
-[github]: https://github.com
-[github-ssh]: https://help.github.com/en/articles/connecting-to-github-with-ssh
-[github-logos]: https://github.com/logos
-[install]: https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/install.md
-[ms-package-repos]: https://packages.microsoft.com/repos/
-[roadmap]: https://github.com/git-ecosystem/git-credential-manager/milestones?direction=desc&sort=due_date&state=open
-[roadmap-announcement]: https://github.com/git-ecosystem/git-credential-manager/discussions/1203
-[workflow-status]: https://github.com/git-ecosystem/git-credential-manager/actions/workflows/continuous-integration.yml
+## Data/Telemetry
+VS Code collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://go.microsoft.com/fwlink/?LinkID=528096&clcid=0x409) to learn more. If you don't wish to send usage data to Microsoft, you can set the `telemetry.enableTelemetry` setting to `false`. Learn more in our [FAQ](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).
